@@ -4,6 +4,13 @@ version: 2.1
 orbs:
   node: circleci/node@5
 jobs:
+  say-hello:
+    executor: node/default
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
   test-node:
     # Install node dependencies and run tests
     executor: node/default
@@ -63,6 +70,7 @@ jobs:
 workflows:
   build-and-test:
     jobs:
+      - say-hello
       - test-node
       - build-node:
           requires:
