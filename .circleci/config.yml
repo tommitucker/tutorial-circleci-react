@@ -5,6 +5,7 @@ orbs:
 
 jobs:
   test-unit:
+    parallelism: 4
     executor:
       name: node/default
       tag: '24.0'
@@ -14,9 +15,17 @@ jobs:
           pkg-manager: npm
       - run:
           name: Run Unit Tests
-          command: npm run test:unit:ci
+          command: |
+            UNIT_FILES=$( (circleci tests glob "src/**/*.unit.test.ts"; circleci tests glob "src/**/*.unit.test.tsx") | circleci tests split --split-by=timings)
+            if [ -n "$UNIT_FILES" ]; then
+              echo "$UNIT_FILES" | xargs npx vitest run --reporter=junit --outputFile=test-results/unit-${CIRCLE_NODE_INDEX}.xml --passWithNoTests
+            else
+              npx vitest run --reporter=junit --outputFile=test-results/unit-${CIRCLE_NODE_INDEX}.xml --passWithNoTests
+            fi
+            
       - store_test_results:
           path: test-results
+
 
   test-integration:
     executor:
