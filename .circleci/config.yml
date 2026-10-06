@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@5
+  node: circleci/node@7.1.0
 
 jobs:
   test-unit:
@@ -13,7 +13,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Run unit tests
+          name: Run Unit Tests
           command: npm run test:unit:ci
 
   test-integration:
@@ -25,7 +25,7 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Run integration tests
+          name: Run Integration Tests
           command: npm run test:integration:ci
 
   build:
@@ -37,15 +37,26 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
-          name: Build
+          name: Build Application
           command: npm run build
 
+  lint:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: npm
+      - run:
+          name: Lint
+          command: npm run lint
+
 workflows:
-  test-and-build:
+  version: 2
+  build-and-test:
     jobs:
-      - test-unit
       - test-integration
+      - test-unit
       - build:
           requires:
-            - test-unit
             - test-integration
+            - test-unit
